@@ -12,6 +12,7 @@ import pandas as pd
 import os
 from keras.models import load_model
 
+
 app = Flask(__name__)
 model = load_model("model.h5")
 
@@ -24,9 +25,14 @@ def predict():
 
     args = request.args
     name = args['cid']
-    # name = "TATAMOTORS.NS"
 
-    details = yf.Ticker(name)
+    TTM=""
+    if name=="TATAMOTORS.NS":
+        TTM='TTM'
+    else:
+        TTM=name
+
+    details = yf.Ticker(TTM)
 
     # Create json file
 
@@ -40,11 +46,11 @@ def predict():
         'Discription':details.info['longBusinessSummary']
     })
 
-    if name!="TATAMOTORS.NS":
+    if name!=('TATAMOTORS.NS'):
         data_file['Prediction'].append("Coming Soon...")
         return jsonify(data_file)
 
-
+    
     # Get the stock quote
     df = web.DataReader(name, data_source='yahoo',start = '2000-01-25', end = date.today())
 
@@ -116,7 +122,6 @@ def predict():
         '4th day': str(predictions[3]),
         '5th day': str(predictions[4])
     })
-    
     return jsonify(data_file)
 
 @app.route('/train',methods=['GET'])
